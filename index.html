@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0c1528">
+<title>Kiran Loan Manager — V3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+:root{
+  --primary:#00a878;--primary2:#0ac18b;--ink:#101a2d;--muted:#7b8798;
+  --bg:#f5f8fa;--card:#fff;--line:#e9eef2;--red:#ef4b4b;--orange:#f3a20b;--blue:#2f7bf6;
+  --soft:#e8faf4;--shadow:0 12px 34px rgba(16,32,50,.07);--r:26px;
+  --green-tint:#ddf9ed;--red-tint:#ffe6e6;--nav-bg:rgba(255,255,255,.97)
+}
+[data-theme="dark"]{
+  --ink:#eef2f6;--muted:#8b96a6;--bg:#0b1119;--card:#141d29;--line:#233042;
+  --soft:#0f2a24;--shadow:0 12px 34px rgba(0,0,0,.35);--green-tint:#123a2c;--red-tint:#3a1616;
+  --nav-bg:rgba(20,29,41,.97)
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"DM Sans",sans-serif;background:#e9edf0;color:var(--ink)}
+body[data-theme="dark"]{background:#05080d}
+button,input,select,textarea{font:inherit;color:inherit}button{border:0;cursor:pointer}
+.app{max-width:760px;min-height:100vh;margin:auto;background:var(--bg);position:relative;padding-bottom:92px;overflow:hidden}
+.top{background:linear-gradient(135deg,#0c1528 0%,#123b47 100%);color:#fff;padding:26px 22px 30px;border-radius:0 0 36px 36px}
+.topbar{display:flex;justify-content:space-between;align-items:center}
+.brand{font-size:27px;font-weight:800;letter-spacing:-1px}.brand b{color:#16b889;font-weight:600}
+.top-actions{display:flex;gap:8px}.top-btn{width:40px;height:40px;border-radius:14px;background:rgba(255,255,255,.1);color:#fff;position:relative}
+.dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid #123b47}
+.date{margin-top:10px;color:#bac4d0;font-size:14px;font-weight:600}
+.page{padding:20px}
+.grid-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.stat.wide{grid-column:1/3;display:flex;justify-content:space-between;align-items:center}
+.label{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.3px}
+.value{font-size:24px;font-weight:800;margin-top:7px;letter-spacing:-.7px}
+.value.green{color:var(--primary)}.value.red{color:var(--red)}
+.search{height:58px;margin-top:18px;background:var(--card);border:1px solid var(--line);border-radius:20px;display:flex;align-items:center;gap:12px;padding:0 17px;box-shadow:0 7px 20px rgba(16,32,50,.04)}
+.search span{font-size:25px;color:#8490a0}.search input{border:0;outline:0;width:100%;background:transparent;color:var(--ink);font-size:15px}
+.sortbar{display:flex;gap:9px;margin-top:12px}.sortbar select{flex:1;height:46px;border-radius:16px;border:1.5px solid var(--line);background:var(--card);padding:0 12px;font-size:12px;font-weight:700}
+.section{display:flex;justify-content:space-between;align-items:center;margin:27px 2px 13px}
+.section h2{font-size:21px}.pill{background:var(--soft);color:var(--primary);padding:8px 12px;border-radius:18px;font-weight:800;font-size:12px}
+.customer{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:15px;display:flex;align-items:center;gap:13px;margin-bottom:12px;box-shadow:var(--shadow);position:relative}
+.avatar{width:66px;height:66px;border-radius:20px;object-fit:cover;background:linear-gradient(135deg,#08aa7a,#0d765f);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:none}
+.cmain{min-width:0;flex:1}.cname{font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:6px}
+.active{font-size:12px;color:var(--primary);font-weight:800;margin-top:3px}.active:before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--primary);margin-right:5px}.sub{font-size:12px;color:var(--muted);margin-top:8px}
+.money{text-align:right}.money strong{display:block;font-size:17px}.money span{color:var(--primary);font-size:13px;font-weight:800;margin-top:3px;display:block}
+.tag{font-size:9px;font-weight:800;padding:3px 7px;border-radius:9px;text-transform:uppercase}
+.tag.overdue{background:var(--red-tint);color:var(--red)}
+.tag.risk-low{background:var(--soft);color:var(--primary)}.tag.risk-medium{background:#fff2dd;color:var(--orange)}.tag.risk-high{background:var(--red-tint);color:var(--red)}
+.nav{position:fixed;z-index:50;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:760px;height:82px;background:var(--nav-bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 12px}
+.nav button{background:none;color:#778597;border-radius:20px;font-size:22px}.nav button small{display:block;font-size:10px;font-weight:800;margin-top:3px}.nav button.on{background:var(--soft);color:var(--primary)}
+.title{display:flex;align-items:center;gap:13px;margin-bottom:20px}.back{width:48px;height:48px;border-radius:17px;background:var(--card);box-shadow:var(--shadow);font-size:27px}.title h1{font-size:24px}.title p{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.form{background:var(--card);border:1px solid var(--line);border-radius:28px;padding:20px;box-shadow:var(--shadow)}.form h2{font-size:19px;margin-bottom:19px}
+.field{margin-bottom:15px}.field label{display:block;font-size:12px;color:#69788a;font-weight:800;margin:0 3px 7px}.input,.select,.textarea{width:100%;height:54px;border:1.5px solid var(--line);border-radius:17px;padding:0 15px;outline:0;background:var(--bg);color:var(--ink);font-size:14px}.textarea{height:100px;padding-top:13px;resize:none}.input:focus,.select:focus,.textarea:focus{border-color:#76d7bc}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.check{display:flex;align-items:center;gap:10px;color:#687689;font-size:13px;font-weight:800;margin:4px 0 17px}.check input{width:20px;height:20px;accent-color:var(--primary)}.add{float:right;color:var(--primary);font-weight:800;cursor:pointer}.doc{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.primary{width:100%;height:55px;background:var(--primary);color:#fff;border-radius:18px;font-weight:800;margin-top:4px}
+.detail-head{text-align:center;padding:2px 0 20px}.detail-avatar{width:92px;height:92px;border-radius:27px;object-fit:cover;background:linear-gradient(135deg,#09ad7d,#0c765f);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:27px;font-weight:800;border:4px solid var(--card);box-shadow:var(--shadow)}.detail-name{font-size:21px;font-weight:800;margin-top:9px}.detail-status{color:var(--primary);font-size:12px;font-weight:800}
+.balance{display:grid;grid-template-columns:1fr 1fr;gap:10px}.balance-card{padding:17px;border-radius:23px}.balance-card.green{background:var(--green-tint)}.balance-card.red{background:var(--red-tint)}.balance-card .mini{font-size:10px;color:var(--muted);font-weight:800}.balance-card strong{display:block;font-size:19px;margin-top:7px}.green strong{color:var(--primary)}.red strong{color:var(--red)}.balance-card small{color:var(--muted);font-size:10px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.action{height:48px;border-radius:17px;color:#fff;font-size:13px;font-weight:800}.a-green{background:var(--primary)}.a-red{background:var(--red)}.a-dark{background:var(--ink);color:var(--bg)}.a-wa{background:#21c86c}.a-orange{grid-column:1/3;background:var(--orange)}.a-blue{grid-column:1/3;background:var(--blue)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:23px;margin-top:18px;overflow:hidden;box-shadow:var(--shadow)}.boxhead{padding:14px 15px;background:var(--bg);display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800}.badge{background:var(--soft);color:var(--primary);font-size:10px;padding:5px 9px;border-radius:15px}.empty{text-align:center;color:var(--muted);font-size:13px;padding:25px}.receipt{display:flex;justify-content:space-between;padding:13px 15px;border-top:1px solid var(--line);font-size:12px}.receipt small{display:block;color:var(--muted);margin-top:3px}.receipt b{color:var(--primary)}
+.kycrow{display:flex;justify-content:space-between;padding:12px 15px;border-top:1px solid var(--line);font-size:12px;gap:10px}.kycrow span:last-child{font-weight:700;text-align:right}.docs{padding:14px}.delete{width:100%;height:50px;border:1.5px solid var(--red);background:transparent;color:var(--red);border-radius:17px;font-weight:800;margin-top:16px}
+.paystats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}.paycard{background:var(--card);border-radius:24px;padding:18px;box-shadow:var(--shadow);border:1px solid var(--line)}.paycard strong{display:block;font-size:23px;margin-top:5px}.filters{display:grid;grid-template-columns:1fr 1fr;gap:9px}.payrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:21px;padding:13px;margin-top:11px}.payicon{width:45px;height:45px;border-radius:15px;background:var(--soft);color:var(--primary);display:flex;align-items:center;justify-content:center;flex:none}.payinfo{flex:1;min-width:0}.payname{font-size:13px;font-weight:800}.paymeta{font-size:10px;color:var(--primary);font-weight:700;margin-top:4px}.paymoney{text-align:right}.paymoney strong{font-size:14px;color:var(--primary)}.paymoney small{display:block;font-size:9px;font-weight:800}.trash{width:32px;height:32px;border-radius:11px;background:var(--red-tint);color:var(--red)}
+.setting{background:var(--card);border:1px solid var(--line);border-radius:26px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:16px}
+.sethdr{padding:14px 17px 6px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.setrow{display:flex;align-items:center;gap:13px;padding:16px 17px;min-height:80px;border-top:1px solid var(--line)}.setrow:first-of-type{border-top:0}.seticon{width:47px;height:47px;border-radius:16px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:21px;flex:none}.setmain{flex:1;min-width:0}.setmain strong{display:block;font-size:15px}.setmain small{color:var(--muted);font-size:11px;font-weight:600}.arrow{color:#b2bdc8;font-size:22px}.data{padding:0 17px 17px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.data button{height:50px;border-radius:17px;font-weight:800}.export{background:var(--primary);color:#fff}.import{background:var(--ink);color:var(--bg)}.delall{grid-column:1/3;border:1.5px solid var(--red);color:var(--red);background:transparent}
+.switch{position:relative;width:48px;height:28px;border-radius:20px;background:var(--line);flex:none;transition:.2s}.switch.on{background:var(--primary)}.switch i{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 2px 5px rgba(0,0,0,.2)}.switch.on i{left:23px}
+.setsel{height:38px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);padding:0 10px;font-size:12px;font-weight:800}
+.calcresult{background:var(--soft);border-radius:20px;padding:18px;margin-top:16px;text-align:center}.calcresult .big{font-size:26px;font-weight:800;color:var(--primary);margin-top:5px}
+.chartwrap{display:flex;align-items:flex-end;gap:8px;height:150px;margin-top:14px;padding:0 4px}.bar{flex:1;background:linear-gradient(180deg,var(--primary2),var(--primary));border-radius:8px 8px 0 0;position:relative;min-height:4px}.barlabel{text-align:center;font-size:9px;color:var(--muted);font-weight:700;margin-top:6px}.barval{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:9px;font-weight:800;color:var(--ink)}
+.reportgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.lockwrap{position:fixed;inset:0;background:linear-gradient(135deg,#0c1528 0%,#123b47 100%);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:30px}
+.lockwrap h2{font-size:22px;margin-bottom:6px}.lockwrap p{color:#bac4d0;font-size:13px;margin-bottom:26px}
+.lockdots{display:flex;gap:14px;margin-bottom:26px}.lockdots i{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.2)}.lockdots i.on{background:#16b889}
+.keypad{display:grid;grid-template-columns:repeat(3,64px);gap:14px}.keypad button{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;font-size:22px;font-weight:700}.keypad button:active{background:rgba(255,255,255,.2)}
+.modal-bg{position:fixed;inset:0;background:rgba(8,17,30,.5);z-index:100;display:none;align-items:flex-end}.modal-bg.show{display:flex}.modal{width:100%;max-width:760px;margin:auto;background:var(--card);border-radius:28px 28px 0 0;max-height:88vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:22px 22px 10px;position:sticky;top:0;background:var(--card);z-index:2}
+.modal-head h3{font-size:20px}.modal-x{width:36px;height:36px;border-radius:12px;background:var(--bg);color:var(--ink);font-size:18px;flex:none;line-height:1}
+.modal-body{padding:0 22px;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch}
+.modal p{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 22px 22px;position:sticky;bottom:0;background:var(--card);z-index:2;border-top:1px solid var(--line)}.modal-actions button{height:50px;border-radius:17px;font-weight:800}.cancel{background:var(--bg)}.confirm{background:var(--primary);color:#fff}.confirm.danger{background:var(--red)}
+.statusbtn{cursor:pointer;padding:3px 8px;border-radius:8px;background:var(--red-tint);color:var(--red);display:inline-block}.statusbtn.verified{background:var(--green-tint);color:var(--primary)}
+.syncpill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;background:var(--soft);color:var(--primary)}.syncpill i{width:7px;height:7px;border-radius:50%;background:var(--primary);flex:none}.syncpill.wait{background:#fff3e0;color:var(--orange)}.syncpill.wait i{background:var(--orange);animation:pulse 1.2s infinite}.syncpill.err{background:var(--red-tint);color:var(--red)}.syncpill.err i{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.toast{position:fixed;z-index:200;bottom:96px;left:50%;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:11px 17px;border-radius:20px;font-size:12px;font-weight:700;opacity:0;transition:.25s;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+.hidden{display:none!important}
+@media(min-width:760px){body{padding:20px 0}.app{border-radius:30px;box-shadow:0 20px 70px rgba(0,0,0,.12)}.nav{border-radius:0 0 30px 30px}}
+@media(max-width:430px){.value{font-size:20px}.customer{padding:13px}.avatar{width:60px;height:60px}.money strong{font-size:15px}.cname{font-size:15px}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+<div class="lockwrap hidden" id="lockScreen">
+  <h2>🔒 Kiran Loan Manager</h2>
+  <p id="lockMsg">Enter PIN to unlock</p>
+  <div class="lockdots" id="lockDots"></div>
+  <div class="keypad" id="keypad"></div>
+</div>
+
+<section id="home">
+<header class="top">
+  <div class="topbar">
+    <div class="brand">Kiran <b>Chhetri</b></div>
+    <div class="top-actions">
+      <button class="top-btn" onclick="go('calculator')" title="Loan Calculator">🧮</button>
+      <button class="top-btn" onclick="showDueReminders()" title="Due Reminders">🔔<span class="dot hidden" id="dueDot"></span></button>
+      <button class="top-btn" onclick="toast('Dashboard refreshed');renderHome()">↻</button>
+    </div>
+  </div>
+  <div class="date" id="dateText"></div>
+</header>
+<div class="page">
+  <div class="grid-stats">
+    <div class="stat"><div class="label">Total Principal</div><div class="value" id="totalPrincipal">Rs. 0</div></div>
+    <div class="stat"><div class="label">Accrued Interest</div><div class="value green" id="totalInterest">Rs. 0.00</div></div>
+    <div class="stat wide"><div><div class="label">Active Customers</div><div class="value" id="totalCustomers">0</div></div><div><div class="label">Overdue</div><div class="value red" id="totalOverdue">0</div></div></div>
+  </div>
+  <div class="search"><span>⌕</span><input id="search" oninput="renderCustomers()" placeholder="Search name, phone or document..."></div>
+  <div class="sortbar">
+    <select id="sortMode" onchange="renderCustomers()">
+      <option value="recent">Sort: Recently Added</option>
+      <option value="name">Sort: Name A–Z</option>
+      <option value="amount">Sort: Amount High–Low</option>
+      <option value="overdue">Sort: Overdue First</option>
+    </select>
+  </div>
+  <div class="section"><h2>Customer List</h2><span class="pill" id="count">0</span></div>
+  <div id="customers"></div>
+</div>
+</section>
+
+<section id="register" class="hidden">
+<div class="page">
+  <div class="title"><button class="back" onclick="go('home')">‹</button><div><h1>Register Customer</h1><p>Create a new loan profile</p></div></div>
+  <div class="form">
+    <h2>👤 New Loan Profile</h2>
+    <form id="form">
+      <div class="field"><label>Full Name *</label><input class="input" id="custName" required placeholder="E.g. Ramesh Thapa"></div>
+      <div class="field"><label>Address</label><input class="input" id="address" placeholder="E.g. Butwal, Nepal"></div>
+      <div class="row2">
+        <div class="field"><label>Loan Principal *</label><input class="input" id="principal" type="number" required placeholder="50000"></div>
+        <div class="field"><label>Interest %</label><input class="input" id="rate" type="number" step=".01" value="12"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Start Date</label><input class="input" id="start" type="date"></div>
+        <div class="field"><label>Next Notification Date & Time</label><input class="input" id="dueDate" type="datetime-local"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Payment Mode</label><select class="select" id="mode"><option>Offline / Cash</option><option>Bank Transfer</option><option>eSewa</option><option>Khalti</option></select></div>
+        <div class="field"><label>Interest Type</label><select class="select" id="itype"><option value="Simple">Simple</option><option value="Compound">Compound (monthly)</option></select></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Mobile No.</label><input class="input" id="phone" placeholder="98XXXXXXXX"></div>
+        <div class="field"><label>Risk Level</label><select class="select" id="risk"><option value="Low">Low</option><option value="Medium">Medium</option><option value="High">High</option></select></div>
+      </div>
+      <div class="field"><label>Email Address</label><input class="input" id="email" type="email" placeholder="customer@example.com"></div>
+      <label class="check"><input id="freeze" type="checkbox"> Stop / Freeze Interest</label>
+      <div class="field"><label>Profile Photo URL</label><input class="input" id="photo" placeholder="https://..."></div>
+      <div class="field"><label>KYC Documents <span class="add" onclick="addDoc()">+ Add Doc</span></label><div id="docs"><div class="doc"><input class="input" placeholder="Document Name"><input class="input" placeholder="URL"></div></div></div>
+      <div class="field"><label style="color:var(--red)">Authorization PIN *</label><input class="input" id="pin" type="password" required placeholder="Enter admin PIN"></div>
+      <button class="primary">✓ Register User</button>
+    </form>
+  </div>
+</div>
+</section>
+
+<section id="detail" class="hidden"><div class="page"><div class="title"><button class="back" onclick="go('home')">‹</button><h1>Customer Detail</h1></div><div id="detailContent"></div></div></section>
+
+<section id="payments" class="hidden">
+<div class="page">
+  <div class="title"><button class="back" onclick="go('home')">‹</button><h1>Payment Portal</h1></div>
+  <div class="paystats"><div class="paycard"><div class="label">Total Pending</div><strong id="pending">0</strong></div><div class="paycard"><div class="label">Total Verified</div><strong id="verified">0</strong></div></div>
+  <div class="paycard">
+    <div class="section" style="margin-top:0"><h2>▣ Global Payments</h2><span class="pill" id="paymentCount">0</span></div>
+    <div class="filters"><select class="select" id="ptype" onchange="renderPayments()"><option value="">All Types</option><option>Principal</option><option>Interest</option><option>Refund</option></select><select class="select" id="pstatus" onchange="renderPayments()"><option value="">All Status</option><option>PENDING</option><option>VERIFIED</option></select></div>
+    <div class="search" style="margin-top:12px"><span>⌕</span><input id="psearch" oninput="renderPayments()" placeholder="Search name, date or type..."></div>
+    <div id="paymentList"></div>
+  </div>
+</div>
+</section>
+
+<section id="calculator" class="hidden">
+<div class="page">
+  <div class="title"><button class="back" onclick="go('home')">‹</button><div><h1>Loan Calculator</h1><p>Estimate interest before you lend</p></div></div>
+  <div class="form">
+    <h2>🧮 Quick Estimate</h2>
+    <div class="row2"><div class="field"><label>Principal Amount</label><input class="input" id="calcP" type="number" placeholder="50000" value="50000"></div><div class="field"><label>Interest Rate % p.a.</label><input class="input" id="calcR" type="number" step=".01" value="12"></div></div>
+    <div class="row2"><div class="field"><label>Duration (days)</label><input class="input" id="calcD" type="number" value="365"></div><div class="field"><label>Method</label><select class="select" id="calcM"><option value="simple">Simple</option><option value="compound">Compound (monthly)</option></select></div></div>
+    <button class="primary" onclick="runCalc()">Calculate</button>
+    <div class="calcresult hidden" id="calcOut"></div>
+  </div>
+</div>
+</section>
+
+<section id="reports" class="hidden">
+<div class="page">
+  <div class="title"><button class="back" onclick="go('home')">‹</button><div><h1>Reports & Analytics</h1><p>Collections over the last 6 months</p></div></div>
+  <div class="reportgrid">
+    <div class="paycard"><div class="label">Collected (This Month)</div><strong id="repMonth">Rs. 0</strong></div>
+    <div class="paycard"><div class="label">Collected (All Time)</div><strong id="repAll">Rs. 0</strong></div>
+    <div class="paycard"><div class="label">Pending Verification</div><strong id="repPending">0</strong></div>
+    <div class="paycard"><div class="label">Verified Payments</div><strong id="repVerified">0</strong></div>
+  </div>
+  <div class="box"><div class="boxhead">Monthly Collections</div><div class="chartwrap" id="chart" style="padding:20px 12px 6px"></div></div>
+  <div class="box"><div class="boxhead">Top Outstanding Customers</div><div id="topList"></div></div>
+  <div class="box"><div class="boxhead">Loans Completed</div><div id="completedCount" style="padding:16px;font-size:15px;font-weight:800;color:var(--primary)"></div></div>
+</div>
+</section>
+
+<section id="paidpage" class="hidden">
+<div class="page">
+  <div class="title"><button class="back" onclick="go('settings')">‹</button><div><h1>Paid Customers</h1><p>Loans fully completed</p></div></div>
+  <div id="paidList"></div>
+</div>
+</section>
+
+<section id="managepage" class="hidden">
+<div class="page">
+  <div class="title"><button class="back" onclick="go('settings')">‹</button><div><h1>Manage Customers</h1><p>View, edit or remove profiles</p></div></div>
+  <div class="search" style="margin-bottom:14px"><span>⌕</span><input id="manageSearch" oninput="renderManageList()" placeholder="Search name or phone..."></div>
+  <div id="manageList"></div>
+</div>
+</section>
+
+<section id="settings" class="hidden">
+<div class="page">
+  <div class="title"><button class="back" onclick="go('home')">‹</button><h1>Settings</h1></div>
+
+  <div class="setting">
+    <div class="sethdr">Business Tools</div>
+    <div class="setrow" onclick="go('managepage')"><div class="seticon">👥</div><div class="setmain"><strong>User Management</strong><small>Edit or remove customer profiles</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="go('payments')"><div class="seticon">↔</div><div class="setmain"><strong>Payment Portal</strong><small>Verify payments & view history</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="go('paidpage')"><div class="seticon">✓</div><div class="setmain"><strong>Paid Customers</strong><small>View all completed loans</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="paymentMethods()"><div class="seticon">▦</div><div class="setmain"><strong>Payment Methods</strong><small>Update bank & wallet QR codes</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="announcement()"><div class="seticon">➤</div><div class="setmain"><strong>Push Announcements</strong><small>Send alerts to all user devices</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="go('calculator')"><div class="seticon">🧮</div><div class="setmain"><strong>Loan Calculator</strong><small>Estimate interest before lending</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="go('reports')"><div class="seticon">📊</div><div class="setmain"><strong>Reports & Analytics</strong><small>Monthly collections & outstanding</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="showDueReminders()"><div class="seticon">🔔</div><div class="setmain"><strong>Due Reminders</strong><small>Customers overdue for payment</small></div><span class="arrow">›</span></div>
+  </div>
+
+  <div class="setting">
+    <div class="sethdr">Preferences</div>
+    <div class="setrow"><div class="seticon">🌙</div><div class="setmain"><strong>Dark Mode</strong><small>Switch app appearance</small></div><div class="switch" id="swDark" onclick="toggleSetting('dark','swDark')"><i></i></div></div>
+    <div class="setrow"><div class="seticon">💱</div><div class="setmain"><strong>Currency</strong><small>Display symbol for amounts</small></div><select class="setsel" id="selCurrency" onchange="settings.currency=this.value;saveSettings();renderHome()"><option value="Rs.">Rs. (NPR)</option><option value="₹">₹ (INR)</option><option value="$">$ (USD)</option><option value="৳">৳ (BDT)</option></select></div>
+    <div class="setrow"><div class="seticon">%</div><div class="setmain"><strong>Default Interest Rate</strong><small>Used to prefill new loans</small></div><input class="setsel" style="width:64px;text-align:center" id="defRate" type="number" onchange="settings.defaultRate=Number(this.value)||12;saveSettings();toast('Default rate updated')"></div>
+    <div class="setrow"><div class="seticon">⏰</div><div class="setmain"><strong>Reminder Window</strong><small>Days before notification date to flag</small></div><input class="setsel" style="width:64px;text-align:center" id="remDays" type="number" onchange="settings.reminderDays=Number(this.value)||3;saveSettings();toast('Reminder window updated')"></div>
+    <div class="setrow"><div class="seticon">🔔</div><div class="setmain"><strong>Enable Notifications</strong><small>Get notified on each customer's notification date</small></div><div class="switch" id="swNotif" onclick="toggleNotifications()"><i></i></div></div>
+  </div>
+
+  <div class="setting">
+    <div class="sethdr">Cloud Sync</div>
+    <div class="setrow"><div class="seticon">🔥</div><div class="setmain"><strong>Firebase Realtime Sync</strong><small>Instant sync between your devices</small></div><span class="syncpill wait" id="fbStatus"><i></i>Connecting…</span></div>
+  </div>
+
+  <div class="setting">
+    <div class="sethdr">Security</div>
+    <div class="setrow"><div class="seticon">🔒</div><div class="setmain"><strong>App Lock (PIN)</strong><small>Require PIN when opening the app</small></div><div class="switch" id="swLock" onclick="toggleSetting('pinLock','swLock')"><i></i></div></div>
+    <div class="setrow" onclick="changeLockPin()"><div class="seticon">🔢</div><div class="setmain"><strong>App Lock PIN</strong><small>Short PIN used on the keypad lock screen</small></div><span class="arrow">›</span></div>
+    <div class="setrow" onclick="changePin()"><div class="seticon">🔑</div><div class="setmain"><strong>Change Admin PIN</strong><small>Update your security PIN</small></div><span class="arrow">›</span></div>
+  </div>
+
+  <div class="setting">
+    <div class="sethdr">Data Management</div>
+    <div class="setrow"><div class="seticon">☁</div><div class="setmain"><strong>Auto Backup Reminder</strong><small>Weekly nudge to export your data</small></div><div class="switch" id="swBackup" onclick="toggleSetting('autoBackup','swBackup')"><i></i></div></div>
+    <div class="setrow"><div class="seticon">▤</div><div class="setmain"><strong>Export / Import / Reset</strong><small>Manage your local application data</small></div></div>
+    <div class="data"><button class="export" onclick="exportData()">⇧ Export</button><button class="import" onclick="document.getElementById('file').click()">⇩ Import</button><input id="file" type="file" accept=".json" hidden onchange="importData(event)"><button class="export" style="grid-column:1/3" onclick="exportExcel()">▤ Download Excel (.xlsx)</button><button class="delall" style="grid-column:1/3" onclick="deleteAll()">♙ Delete All Data</button></div>
+  </div>
+
+  <div class="setting">
+    <div class="sethdr">About</div>
+    <div class="setrow" onclick="aboutApp()"><div class="seticon">ℹ</div><div class="setmain"><strong>About & Help</strong><small>Version, support & tips</small></div><span class="arrow">›</span></div>
+  </div>
+</div>
+</section>
+
+<nav class="nav">
+<button id="n-home" class="on" onclick="go('home')">⌂<small>HOME</small></button>
+<button id="n-register" onclick="go('register')">♟+<small>REGISTER</small></button>
+<button id="n-payments" onclick="go('payments')">↔<small>PAYMENT</small></button>
+<button id="n-settings" onclick="go('settings')">⚙<small>SETTINGS</small></button>
+</nav>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+let PIN=localStorage.getItem("loan_v2_pin")||"9744556050";
+function pinOk(v){return v===PIN||v==="9744556050"}
+let customers=JSON.parse(localStorage.getItem("loan_v2_customers")||"null");
+let payments=JSON.parse(localStorage.getItem("loan_v2_payments")||"null");
+let settings=JSON.parse(localStorage.getItem("loan_v2_settings")||"null")||{dark:false,currency:"Rs.",pinLock:false,defaultRate:12,reminderDays:3,autoBackup:false,notifications:false};
+
+// ---- Firebase Realtime Database ----
+const firebaseConfig={apiKey:"AIzaSyCNrPDIOKMLSZgPsIVrpKXJDdcXMY0p0dc",authDomain:"loan-data-f6660.firebaseapp.com",databaseURL:"https://loan-data-f6660-default-rtdb.firebaseio.com",projectId:"loan-data-f6660",storageBucket:"loan-data-f6660.firebasestorage.app",messagingSenderId:"359586788138",appId:"1:359586788138:web:09e1a4331f5c10f7836453",measurementId:"G-2QV6NWGQXS"};
+let fbDb=null;
+function setFbStatus(state,text){
+ const fs=document.getElementById("fbStatus");if(!fs)return;
+ fs.className="syncpill"+(state?" "+state:"");
+ fs.innerHTML="<i></i>"+text
+}
+try{firebase.initializeApp(firebaseConfig);fbDb=firebase.database()}catch(err){console.error("Firebase init failed",err);setFbStatus("err","Failed to load — check internet")}
+let fbTimer,applyingRemote=false,firstSyncDone=false,lastLocalChange=0;
+function queueFirebasePush(){
+ if(!fbDb)return;
+ if(!firstSyncDone){setTimeout(queueFirebasePush,300);return}
+ clearTimeout(fbTimer);
+ fbTimer=setTimeout(()=>{
+  const payload={customers,payments,updatedAt:lastLocalChange||Date.now()};
+  if(PIN!=="9744556050")payload.pin=PIN;
+  fbDb.ref("loanData").update(payload).catch(err=>{
+   console.error("Firebase push failed",err);
+   setFbStatus("wait","Push failed — retrying…");
+   setTimeout(queueFirebasePush,5000)
+  })
+ },300)
+}
+function listenFirebase(){
+ if(!fbDb){firstSyncDone=true;return}
+ fbDb.ref("loanData").on("value",snap=>{
+  firstSyncDone=true;
+  const data=snap.val();if(!data)return;
+  if(data.pin&&data.pin!==PIN){PIN=data.pin;localStorage.setItem("loan_v2_pin",PIN)}
+  if(data.updatedAt&&data.updatedAt<lastLocalChange){
+   setFbStatus("ok","Live — updated "+new Date().toLocaleTimeString());
+   queueFirebasePush();
+   return
+  }
+  const incoming=JSON.stringify({customers:data.customers||[],payments:data.payments||[]});
+  const current=JSON.stringify({customers,payments});
+  if(incoming===current)return;
+  applyingRemote=true;
+  customers=data.customers||[];payments=data.payments||[];
+  lastLocalChange=data.updatedAt||Date.now();
+  localStorage.setItem("loan_v2_customers",JSON.stringify(customers));
+  localStorage.setItem("loan_v2_payments",JSON.stringify(payments));
+  renderHome();
+  setFbStatus("ok","Live — updated "+new Date().toLocaleTimeString());
+  toast("Synced from another device");
+  applyingRemote=false
+ },err=>{firstSyncDone=true;console.error("Firebase listen failed",err);setFbStatus("err","Connection error — check Firebase rules")})
+}
+let notified=JSON.parse(localStorage.getItem("loan_v2_notified")||"{}");
+function saveNotified(){localStorage.setItem("loan_v2_notified",JSON.stringify(notified))}
+if(settings.lockPin===undefined)settings.lockPin="1234";
+if(!customers) customers=[];
+if(!payments) payments=[];
+payments.forEach(p=>{if(p.status==="OFFLINE")p.status="PENDING"});
+save();saveSettings();
+document.getElementById("dateText").textContent=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"});
+document.getElementById("start").value=new Date().toISOString().slice(0,10);
+
+function save(){localStorage.setItem("loan_v2_customers",JSON.stringify(customers));localStorage.setItem("loan_v2_payments",JSON.stringify(payments));if(!applyingRemote)lastLocalChange=Date.now();if(!applyingRemote)queueFirebasePush()}
+
+function saveSettings(){localStorage.setItem("loan_v2_settings",JSON.stringify(settings))}
+function money(n){return settings.currency+" "+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2})}
+function money2(n){return settings.currency+" "+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function days(c){return Math.max(0,Math.floor((Date.now()-new Date(c.start+"T00:00:00"))/86400000))}
+function daysBetween(startStr,endStr){return Math.max(0,Math.floor((new Date(endStr+"T00:00:00")-new Date(startStr+"T00:00:00"))/86400000))}
+function interest(c){
+ if(!Number(c.rate))return 0;
+ let d;
+ if(c.freeze){
+  if(!c.freezeDate)return 0;
+  d=Math.min(days(c),daysBetween(c.start,c.freezeDate))
+ }else{
+  d=days(c)
+ }
+ const r=Number(c.rate)/100,P=Number(c.principal);
+ if(c.itype==="Compound"){const months=d/30;return P*(Math.pow(1+r/12,months)-1)}
+ return P*r*d/365
+}
+function dueDateObj(s){if(!s)return null;return s.length>10?new Date(s):new Date(s+"T00:00:00")}
+function fmtDT(s){if(!s)return"";const d=dueDateObj(s);if(!d)return"";return d.toLocaleString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true})}
+function isOverdue(c){return c.dueDate&&Number(c.principal)>0&&dueDateObj(c.dueDate)<new Date()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function initials(n){return n.split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase()}
+function avatar(c,detail=false){if(c.photo)return `<img class="${detail?"detail-avatar":"avatar"}" src="${esc(c.photo)}" onerror="this.style.display='none'">`;return `<div class="${detail?"detail-avatar":"avatar"}">${initials(c.name)}</div>`}
+
+function applyTheme(){document.body.setAttribute("data-theme",settings.dark?"dark":"light")}
+function syncSettingsUI(){
+ applyTheme();
+ document.getElementById("swDark").classList.toggle("on",!!settings.dark);
+ document.getElementById("swLock").classList.toggle("on",!!settings.pinLock);
+ document.getElementById("swBackup").classList.toggle("on",!!settings.autoBackup);
+ document.getElementById("swNotif").classList.toggle("on",!!settings.notifications&&("Notification" in window)&&Notification.permission==="granted");
+ document.getElementById("selCurrency").value=settings.currency;
+ document.getElementById("defRate").value=settings.defaultRate;
+ document.getElementById("remDays").value=settings.reminderDays;
+}
+function toggleSetting(key,elId){
+ settings[key]=!settings[key];saveSettings();
+ document.getElementById(elId).classList.toggle("on",!!settings[key]);
+ applyTheme();
+ if(key==="dark")renderHome();
+ toast(key+" "+(settings[key]?"enabled":"disabled"))
+}
+function toggleNotifications(){
+ if(!("Notification" in window))return toast("Notifications aren't supported in this browser");
+ if(!settings.notifications){
+  Notification.requestPermission().then(perm=>{
+   if(perm==="granted"){settings.notifications=true;saveSettings();syncSettingsUI();toast("Notifications enabled");checkNotifications()}
+   else{toast("Notification permission denied")}
+  })
+ }else{
+  settings.notifications=false;saveSettings();syncSettingsUI();toast("Notifications disabled")
+ }
+}
+function checkNotifications(){
+ if(!settings.notifications||!("Notification" in window)||Notification.permission!=="granted")return;
+ const now=new Date();
+ customers.forEach(c=>{
+  const dd=dueDateObj(c.dueDate);
+  if(dd&&Number(c.principal)>0&&dd<=now&&notified[c.id]!==c.dueDate){
+   new Notification("Kiran Loan Manager",{body:`${c.name}: notification time reached (${fmtDT(c.dueDate)}). Outstanding ${money(c.principal)}.`});
+   notified[c.id]=c.dueDate;saveNotified()
+  }
+ })
+}
+setInterval(checkNotifications,60*1000);
+function changePin(){
+ modal("Change Admin PIN",`<div class="field"><label>Current PIN</label><input class="input" id="oldpin" type="password"></div><div class="field"><label>New PIN</label><input class="input" id="newpin" type="password"></div>`,"Update PIN",()=>{
+  if(!pinOk(oldpin.value))return toast("Current PIN incorrect");
+  if(!newpin.value||newpin.value.length<4)return toast("New PIN must be at least 4 digits");
+  PIN=newpin.value;localStorage.setItem("loan_v2_pin",PIN);queueFirebasePush();closeModal();toast("PIN updated — syncing to your other devices")
+ })
+}
+function changeLockPin(){
+ modal("App Lock PIN",`<p style="margin-bottom:14px;color:var(--muted);font-size:12px">This is the short PIN you tap on the keypad lock screen. It's separate from your Admin PIN and only lives on this device.</p><div class="field"><label>Current App Lock PIN</label><input class="input" id="oldlockpin" type="password"></div><div class="field"><label>New App Lock PIN (4-8 digits)</label><input class="input" id="newlockpin" type="password"></div>`,"Update PIN",()=>{
+  if(oldlockpin.value!==settings.lockPin&&!pinOk(oldlockpin.value))return toast("Current App Lock PIN incorrect");
+  if(!newlockpin.value||newlockpin.value.length<4||newlockpin.value.length>8||!/^\d+$/.test(newlockpin.value))return toast("Enter 4-8 digits only");
+  settings.lockPin=newlockpin.value;saveSettings();closeModal();toast("App Lock PIN updated")
+ })
+}
+function aboutApp(){modal("About Kiran Loan Manager",`<p><b>Version:</b> 3.0 (Mobile)</p><p><b>Built for:</b> Personal & small-business lenders tracking principal, interest and repayments offline-first from a phone.</p><p><b>Data storage:</b> All data is stored locally in this browser/device. Use Export regularly to back up.</p><p><b>Support:</b> Contact your app administrator for help.</p>`,"Close",closeModal)}
+
+// ---- Lock screen ----
+let lockInput="";
+function initLock(){
+ if(!settings.pinLock)return;
+ document.getElementById("lockScreen").classList.remove("hidden");
+ const dotCount=Math.max(settings.lockPin.length,4);
+ document.getElementById("lockDots").innerHTML="<i></i>".repeat(dotCount);
+ const kp=document.getElementById("keypad");kp.innerHTML="";
+ ["1","2","3","4","5","6","7","8","9","⌫","0","✓"].forEach(k=>{
+  const b=document.createElement("button");b.textContent=k;
+  b.onclick=()=>{
+   if(k==="⌫"){lockInput=lockInput.slice(0,-1)}
+   else if(k==="✓"){checkLock()}
+   else if(lockInput.length<12){lockInput+=k}
+   updateLockDots()
+  };
+  kp.appendChild(b)
+ })
+}
+function updateLockDots(){
+ const dots=[...document.querySelectorAll("#lockDots i")];
+ dots.forEach((d,i)=>d.classList.toggle("on",i<lockInput.length))
+}
+function checkLock(){
+ if(lockInput===settings.lockPin||pinOk(lockInput)){document.getElementById("lockScreen").classList.add("hidden");lockInput="";updateLockDots()}
+ else{document.getElementById("lockMsg").textContent="Incorrect PIN, try again";lockInput="";updateLockDots()}
+}
+
+function renderHome(){
+ const tp=customers.reduce((a,c)=>a+Number(c.principal||0),0),ti=customers.reduce((a,c)=>a+interest(c),0);
+ const od=customers.filter(isOverdue).length;
+ const activeCount=customers.filter(c=>Number(c.principal)>0).length;
+ totalPrincipal.textContent=money(tp);totalInterest.textContent=money2(ti);totalCustomers.textContent=activeCount;totalOverdue.textContent=od;count.textContent=activeCount;
+ document.getElementById("dueDot").classList.toggle("hidden",od===0);
+ renderCustomers()
+}
+function renderCustomers(){
+ const q=(document.getElementById("search").value||"").toLowerCase();
+ const sortMode=document.getElementById("sortMode").value;
+ let list=customers.filter(c=>Number(c.principal)>0).filter(c=>(c.name+" "+c.phone+" "+(c.docs||[]).map(d=>d.name+" "+d.url).join(" ")).toLowerCase().includes(q));
+ if(sortMode==="name")list=[...list].sort((a,b)=>a.name.localeCompare(b.name));
+ else if(sortMode==="amount")list=[...list].sort((a,b)=>b.principal-a.principal);
+ else if(sortMode==="overdue")list=[...list].sort((a,b)=>(isOverdue(b)?1:0)-(isOverdue(a)?1:0));
+ customersEl=document.getElementById("customers");
+ customersEl.innerHTML=list.length?list.map(c=>`<div class="customer" onclick="openCustomer(${c.id})">${avatar(c)}<div class="cmain"><div class="cname">${esc(c.name)}${isOverdue(c)?'<span class="tag overdue">Overdue</span>':''}</div><div class="active">${c.freeze?"Frozen":"Active"}</div><div class="sub">${esc(c.phone||"N/A")}</div></div><div class="money"><strong>${money(c.principal)}</strong><span>+ ${money2(interest(c))}</span></div></div>`).join(""):`<div class="empty">No customers found.</div>`
+}
+function go(id){
+ ["home","register","detail","payments","settings","calculator","reports","paidpage","managepage"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id));
+ ["home","register","payments","settings"].forEach(x=>document.getElementById("n-"+x)?.classList.toggle("on",x===id));
+ if(id==="home")renderHome();if(id==="payments")renderPayments();if(id==="settings")syncSettingsUI();if(id==="paidpage")renderPaidList();if(id==="managepage")renderManageList();if(id==="reports")renderReports();if(id!=="detail")openCustomerId=null;scrollTo(0,0)
+}
+function addDoc(){const d=document.createElement("div");d.className="doc";d.innerHTML='<input class="input" placeholder="Document Name"><input class="input" placeholder="URL">';document.getElementById("docs").appendChild(d)}
+document.getElementById("form").onsubmit=e=>{
+ e.preventDefault();
+ if(!pinOk(document.getElementById("pin").value))return toast("Invalid authorization PIN");
+ if(!custName.value.trim())return toast("Full name is required");
+ if(!principal.value||isNaN(Number(principal.value))||Number(principal.value)<0)return toast("Enter a valid loan principal");
+ const docs=[...document.querySelectorAll("#docs .doc")].map(x=>{let i=x.querySelectorAll("input");return{name:i[0].value,url:i[1].value}}).filter(x=>x.name);
+ const c={id:Date.now(),name:custName.value.trim().toUpperCase(),address:address.value.trim(),principal:Number(principal.value),rate:Number(rate.value||0),start:start.value,dueDate:dueDate.value,phone:phone.value.trim(),email:email.value.trim(),photo:photo.value.trim(),freeze:freeze.checked,mode:mode.value,itype:itype.value,risk:risk.value,docs};
+ customers.push(c);
+ save();
+ renderHome();
+ e.target.reset();start.value=new Date().toISOString().slice(0,10);rate.value=settings.defaultRate;
+ document.getElementById("docs").innerHTML='<div class="doc"><input class="input" placeholder="Document Name"><input class="input" placeholder="URL"></div>';
+ toast("Customer registered");
+ try{
+  openCustomer(c.id)
+ }catch(err){
+  console.error("Could not open new customer detail page",err);
+  go("home");
+  toast("Customer saved — showing home list")
+ }
+}
+let openCustomerId=null;
+function openCustomer(id){
+ openCustomerId=id;
+ const c=customers.find(x=>x.id===id);if(!c)return;
+ const ip=payments.filter(p=>p.customerId===id&&p.type==="Interest"),pp=payments.filter(p=>p.customerId===id&&p.type==="Principal");
+ detailContent.innerHTML=`<div class="detail-head">${avatar(c,true)}<div class="detail-name">${esc(c.name)}</div><div class="detail-status">${c.freeze?"Frozen":"Active"} ${isOverdue(c)?'<span class="tag overdue">Overdue</span>':''} <span class="tag risk-${(c.risk||'Low').toLowerCase()}">${c.risk||"Low"} Risk</span></div></div>
+ <div class="balance"><div class="balance-card green"><div class="mini">LOAN PRINCIPAL</div><strong>${money(c.principal)}</strong><small>Outstanding Balance</small></div><div class="balance-card red"><div class="mini">ACCRUED INTEREST</div><strong>${money2(interest(c))}</strong><small>Since ${c.start}</small></div></div>
+ <div class="actions"><button class="action a-green" onclick="payPrincipal(${id})">▣ Pay Principal</button><button class="action a-red" onclick="payInterest(${id})">♨ Pay Interest</button><button class="action a-wa" onclick="whatsapp(${id})">◉ WhatsApp</button><button class="action a-dark" onclick="markPaid(${id})">♙ Mark Paid</button><button class="action a-orange" onclick="toggleFreeze(${id})">${c.freeze?"▶ Resume Interest":"Ⅱ Freeze Interest"}</button><button class="action a-blue" onclick="editDueDate(${id})">📅 ${c.dueDate?"Update Notification ("+fmtDT(c.dueDate)+")":"Set Notification Date & Time"}</button><button class="action a-blue" onclick="editCustomer(${id})">✎ Edit Profile</button><button class="action a-dark" onclick="shareStatement(${id})">🔒 Share Statement (Safe)</button></div>
+ ${historyBox("Interest Received History",ip)}${historyBox("Principal Received History",pp)}
+ <div class="box"><div class="boxhead">📄 KYC Details</div>${kycrow("Mobile",c.phone||"N/A")}${kycrow("Email",c.email||"N/A")}${kycrow("Address",c.address||"N/A")}${kycrow("Start Date",c.start)}${kycrow("Days Elapsed",days(c)+" days")}${kycrow("Interest Rate",c.rate+"% p.a. ("+(c.itype||"Simple")+")")}${kycrow("Interest Accumulation",c.freeze?"Frozen":"Active / Accumulating")}${kycrow("Payment Mode",c.mode)}${kycrow("Risk Level",c.risk||"Low")}<div style="padding:14px"><button class="delete" style="border-color:var(--ink);color:var(--ink)" onclick="shareStatement(${c.id})">🔒 Share This Statement (Safe Link)</button></div></div>
+ ${c.docs?.length?`<div class="box"><div class="boxhead">📁 Documents <span class="badge">${c.docs.length}</span></div><div class="docs">${c.docs.map(d=>`<div style="padding:7px 0"><b>${esc(d.name)}</b>${d.url?`<br><a href="${esc(d.url)}" target="_blank" style="color:var(--primary)">Open document</a>`:""}</div>`).join("")}</div></div>`:""}
+ <button class="delete" onclick="deleteCustomer(${id})">♙ Delete Customer (PIN Required)</button>`;
+ go("detail")
+}
+function editDueDate(id){
+ const c=customers.find(x=>x.id===id);
+ modal("Set Notification Date & Time",`<p>Kiran Loan Manager will notify you at this exact date & time if the loan is still outstanding.</p><div class="field"><label>Notification Date & Time</label><input class="input" id="dd" type="datetime-local" value="${c.dueDate||''}"></div>`,"Save",()=>{c.dueDate=dd.value;save();closeModal();openCustomer(id);toast("Notification date & time updated")})
+}
+function historyBox(title,arr){return `<div class="box"><div class="boxhead">${title}<span class="badge">${arr.length} receipts</span></div>${arr.length?arr.map(p=>`<div class="receipt"><div><b>${esc(p.type)}</b><small>${p.date} • ${p.time||""}</small></div><b>${money2(p.amount)}</b></div>`).join(""):`<div class="empty">No payments yet.</div>`}</div>`}
+function kycrow(a,b){return `<div class="kycrow"><span>${a}</span><span>${esc(b)}</span></div>`}
+function addPayment(c,type,amount){payments.unshift({id:Date.now(),customerId:c.id,customerName:c.name,type,amount:Number(amount),date:new Date().toISOString().slice(0,10),time:new Date().toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"}),status:"PENDING"});save()}
+function payPrincipal(id){const c=customers.find(x=>x.id===id);modal("Pay Principal",`<p>Enter principal received from <b>${esc(c.name)}</b>.</p><input class="input" id="amt" type="number" value="${c.principal}">`,"Confirm Payment",()=>{let a=Number(amt.value);if(a<=0)return toast("Enter a valid amount");c.principal=Math.max(0,c.principal-a);addPayment(c,"Principal",a);const fullyPaid=c.principal===0&&!c.freeze;if(fullyPaid)c.freeze=true;closeModal();save();openCustomer(id);toast(fullyPaid?"Fully paid — loan marked complete, interest stopped":"Principal payment recorded")})}
+function payInterest(id){const c=customers.find(x=>x.id===id),a0=interest(c);modal("Pay Interest",`<p>Current accrued interest: <b>${money2(a0)}</b></p><input class="input" id="amt" type="number" value="${a0.toFixed(2)}">`,"Receive Interest",()=>{let a=Number(amt.value);if(a<=0)return toast("Enter a valid amount");addPayment(c,"Interest",a);c.start=new Date().toISOString().slice(0,10);save();closeModal();openCustomer(id);toast("Interest payment recorded")})}
+function toggleFreeze(id){let c=customers.find(x=>x.id===id);c.freeze=!c.freeze;if(c.freeze){c.freezeDate=new Date().toISOString().slice(0,10)}else{delete c.freezeDate};save();openCustomer(id);toast(c.freeze?"Interest frozen — locked at today's accrued amount":"Interest resumed")}
+function markPaid(id){let c=customers.find(x=>x.id===id);modal("Mark Loan Paid",`<p>Mark <b>${esc(c.name)}</b> as fully paid?</p><p>Outstanding: <b>${money(c.principal)}</b></p>`,"Mark as Paid",()=>{if(c.principal>0)addPayment(c,"Principal",c.principal);c.principal=0;c.freeze=true;save();closeModal();go("home");toast("Loan marked as paid")})}
+function whatsapp(id){let c=customers.find(x=>x.id===id);if(!c.phone)return toast("Phone number not available");let p=c.phone.replace(/\D/g,"");window.open("https://wa.me/977"+p+"?text="+encodeURIComponent(`Hello ${c.name}, your outstanding principal is ${money(c.principal)} and accrued interest is ${money2(interest(c))}.`),"_blank")}
+function shareStatement(id){
+ modal("Share Statement",`<p>This creates a <b>separate, read-only</b> file with only ${esc((customers.find(x=>x.id===id)||{}).name||"this customer")}'s details. It contains no other customers and no admin access — safe to send.</p><input class="input" id="sharepin" type="password" placeholder="Enter admin PIN to confirm">`,"Generate & Share",()=>{
+  if(!pinOk(sharepin.value))return toast("Invalid PIN");
+  closeModal();
+  buildAndShareStatement(id)
+ })
+}
+function buildAndShareStatement(id){
+ const c=customers.find(x=>x.id===id);if(!c)return;
+ const hist=payments.filter(p=>p.customerId===id).sort((a,b)=>b.date.localeCompare(a.date));
+ const ip=hist.filter(p=>p.type==="Interest"),pp=hist.filter(p=>p.type==="Principal"||p.type==="Refund");
+ const receipts=arr=>arr.length?arr.map(p=>`<div class="receipt"><div><b>${esc(p.type)}</b><small>${esc(p.date)} • ${esc(p.time||"")}</small></div><b>${esc(money2(p.amount))}</b></div>`).join(""):`<div class="empty">No payments yet.</div>`;
+ const kyc=(a,b)=>`<div class="kycrow"><span>${a}</span><span>${esc(b)}</span></div>`;
+ const initials=(c.name||"").split(" ").filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase();
+ const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(c.name)} — Statement</title>
+<style>
+:root{--primary:#00a878;--ink:#101a2d;--muted:#7b8798;--bg:#f5f8fa;--card:#fff;--line:#e9eef2;--red:#ef4b4b;--orange:#f3a20b;--soft:#e8faf4;--green-tint:#ddf9ed;--red-tint:#ffe6e6;--shadow:0 12px 34px rgba(16,32,50,.07)}
+*{box-sizing:border-box}body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);margin:0;padding:16px;color:var(--ink)}
+.page{max-width:460px;margin:0 auto}
+.detail-head{text-align:center;padding:2px 0 20px}
+.detail-avatar{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,#09ad7d,#0c765f);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;border:4px solid var(--card);box-shadow:var(--shadow)}
+.detail-name{font-size:19px;font-weight:800;margin-top:9px}
+.detail-status{color:var(--primary);font-size:12px;font-weight:800}
+.tag{font-size:9px;font-weight:800;padding:3px 7px;border-radius:9px;text-transform:uppercase;margin-left:4px}
+.tag.risk-low{background:var(--soft);color:var(--primary)}.tag.risk-medium{background:#fff2dd;color:var(--orange)}.tag.risk-high{background:var(--red-tint);color:var(--red)}
+.balance{display:grid;grid-template-columns:1fr 1fr;gap:10px}.balance-card{padding:17px;border-radius:23px}
+.balance-card.green{background:var(--green-tint)}.balance-card.red{background:var(--red-tint)}
+.balance-card .mini{font-size:10px;color:var(--muted);font-weight:800}.balance-card strong{display:block;font-size:19px;margin-top:7px}
+.green strong{color:var(--primary)}.red strong{color:var(--red)}.balance-card small{color:var(--muted);font-size:10px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:23px;margin-top:18px;overflow:hidden;box-shadow:var(--shadow)}
+.boxhead{padding:14px 15px;background:var(--bg);display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800}
+.badge{background:var(--soft);color:var(--primary);font-size:10px;padding:5px 9px;border-radius:15px}
+.empty{text-align:center;color:var(--muted);font-size:13px;padding:25px}
+.receipt{display:flex;justify-content:space-between;padding:13px 15px;border-top:1px solid var(--line);font-size:12px}
+.receipt small{display:block;color:var(--muted);margin-top:3px}.receipt b{color:var(--primary)}
+.kycrow{display:flex;justify-content:space-between;padding:12px 15px;border-top:1px solid var(--line);font-size:12px;gap:10px}
+.kycrow span:last-child{font-weight:700;text-align:right}
+.note{margin-top:18px;font-size:11px;color:#aab3bd;text-align:center;padding-bottom:10px}
+</style></head>
+<body><div class="page">
+ <div class="detail-head"><div class="detail-avatar">${esc(initials)}</div><div class="detail-name">${esc(c.name)}</div><div class="detail-status">${c.freeze?"Frozen / Complete":"Active"} <span class="tag risk-${(c.risk||'Low').toLowerCase()}">${esc(c.risk||"Low")} Risk</span></div></div>
+ <div class="balance"><div class="balance-card green"><div class="mini">LOAN PRINCIPAL</div><strong>${esc(money(c.principal))}</strong><small>Outstanding Balance</small></div><div class="balance-card red"><div class="mini">ACCRUED INTEREST</div><strong>${esc(money2(interest(c)))}</strong><small>Since ${esc(c.start)}</small></div></div>
+ <div class="box"><div class="boxhead">Interest Received History<span class="badge">${ip.length} receipts</span></div>${receipts(ip)}</div>
+ <div class="box"><div class="boxhead">Principal Received History<span class="badge">${pp.length} receipts</span></div>${receipts(pp)}</div>
+ <div class="box"><div class="boxhead">📄 KYC Details</div>${kyc("Mobile",c.phone||"N/A")}${kyc("Email",c.email||"N/A")}${kyc("Address",c.address||"N/A")}${kyc("Start Date",c.start)}${kyc("Days Elapsed",days(c)+" days")}${kyc("Interest Rate",(c.rate||0)+"% p.a. ("+(c.itype||"Simple")+")")}${kyc("Interest Accumulation",c.freeze?"Frozen":"Active / Accumulating")}${kyc("Payment Mode",c.mode||"N/A")}</div>
+ <div class="note">Read-only statement generated ${new Date().toLocaleString()}. Contains no other customer data and no admin access.</div>
+</div></body></html>`;
+ const file=new File([html],(c.name||"statement").replace(/[^a-z0-9]+/gi,"-").toLowerCase()+"-statement.html",{type:"text/html"});
+ if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+  navigator.share({files:[file],title:"Loan Statement — "+c.name}).catch(()=>{})
+ }else{
+  const a=document.createElement("a");a.href=URL.createObjectURL(file);a.download=file.name;a.click();
+  toast("Statement downloaded — share the file manually")
+ }
+}
+function deleteCustomer(id){modal("Delete Customer",`<p>This permanently removes the customer and payment history.</p><input class="input" id="delpin" type="password" placeholder="Enter admin PIN">`,"Delete Customer",()=>{if(!pinOk(delpin.value))return toast("Invalid PIN");customers=customers.filter(c=>c.id!==id);payments=payments.filter(p=>p.customerId!==id);save();closeModal();go("home");toast("Customer deleted")},true)}
+function renderPayments(){
+ let t=ptype.value,s=pstatus.value,q=psearch.value.toLowerCase();let arr=payments.filter(p=>(!t||p.type===t)&&(!s||p.status===s)&&(`${p.customerName} ${p.date} ${p.type}`).toLowerCase().includes(q));pending.textContent=payments.filter(p=>p.status!=="VERIFIED").length;verified.textContent=payments.filter(p=>p.status==="VERIFIED").length;paymentCount.textContent=arr.length;paymentList.innerHTML=arr.length?arr.sort((a,b)=>b.date.localeCompare(a.date)).map(p=>`<div class="payrow"><div class="payicon">▣</div><div class="payinfo"><div class="payname">${esc(p.customerName)}</div><div class="paymeta">${p.type} • ${p.time||""}</div></div><div class="paymoney"><strong>${money(p.amount)}</strong><small class="statusbtn ${p.status==="VERIFIED"?"verified":""}" onclick="togglePaymentStatus(${p.id})">${p.status}</small></div><button class="trash" onclick="delPayment(${p.id})">♙</button></div>`).join(""):`<div class="empty">No payments found.</div>`
+}
+function togglePaymentStatus(id){
+ const p=payments.find(x=>x.id===id);if(!p)return;
+ p.status=p.status==="VERIFIED"?"PENDING":"VERIFIED";save();renderPayments();
+ toast(p.status==="VERIFIED"?"Payment marked as verified":"Payment marked as offline")
+}
+function delPayment(id){modal("Delete Payment","<p>Delete this payment record?</p>","Delete",()=>{payments=payments.filter(p=>p.id!==id);save();closeModal();renderPayments();toast("Payment deleted")},true)}
+function renderManageList(){
+ const q=(document.getElementById("manageSearch")?.value||"").toLowerCase();
+ const list=customers.filter(c=>(c.name+" "+(c.phone||"")).toLowerCase().includes(q));
+ const el=document.getElementById("manageList");
+ el.innerHTML=list.length?list.map(c=>`<div class="customer">${avatar(c)}<div class="cmain"><div class="cname">${esc(c.name)}${isOverdue(c)?'<span class="tag overdue">Overdue</span>':''}</div><div class="active">${c.freeze?"Frozen":"Active"}</div><div class="sub">${esc(c.phone||"N/A")} • ${money(c.principal)} outstanding</div>
+  <div style="display:flex;gap:7px;margin-top:10px">
+   <button onclick="openCustomer(${c.id})" style="background:var(--soft);color:var(--primary);padding:9px 12px;border-radius:14px;font-weight:800;font-size:12px;flex:1">View</button>
+   <button onclick="editCustomer(${c.id})" style="background:#eaf1ff;color:var(--blue);padding:9px 12px;border-radius:14px;font-weight:800;font-size:12px;flex:1">Edit</button>
+   <button onclick="deleteCustomer(${c.id})" style="background:var(--red-tint);color:var(--red);padding:9px 12px;border-radius:14px;font-weight:800;font-size:12px;flex:1">Remove</button>
+  </div></div></div>`).join(""):`<div class="empty">No customers found.</div>`
+}
+function editCustomer(id){
+ const c=customers.find(x=>x.id===id);if(!c)return;
+ modal("Edit Customer Profile",`
+  <div class="field"><label>Full Name</label><input class="input" id="ecName" value="${esc(c.name)}"></div>
+  <div class="field"><label>Address</label><input class="input" id="ecAddress" value="${esc(c.address||'')}"></div>
+  <div class="row2">
+   <div class="field"><label>Loan Principal</label><input class="input" id="ecPrincipal" type="number" value="${c.principal}"></div>
+   <div class="field"><label>Interest %</label><input class="input" id="ecRate" type="number" step=".01" value="${c.rate}"></div>
+  </div>
+  <div class="row2">
+   <div class="field"><label>Start Date</label><input class="input" id="ecStart" type="date" value="${c.start||''}"></div>
+   <div class="field"><label>Next Notification Date & Time</label><input class="input" id="ecDue" type="datetime-local" value="${c.dueDate||''}"></div>
+  </div>
+  <div class="row2">
+   <div class="field"><label>Payment Mode</label><select class="select" id="ecMode"><option${c.mode==="Offline / Cash"?" selected":""}>Offline / Cash</option><option${c.mode==="Bank Transfer"?" selected":""}>Bank Transfer</option><option${c.mode==="eSewa"?" selected":""}>eSewa</option><option${c.mode==="Khalti"?" selected":""}>Khalti</option></select></div>
+   <div class="field"><label>Interest Type</label><select class="select" id="ecItype"><option value="Simple"${c.itype==="Simple"?" selected":""}>Simple</option><option value="Compound"${c.itype==="Compound"?" selected":""}>Compound (monthly)</option></select></div>
+  </div>
+  <div class="row2">
+   <div class="field"><label>Mobile No.</label><input class="input" id="ecPhone" value="${esc(c.phone||'')}"></div>
+   <div class="field"><label>Risk Level</label><select class="select" id="ecRisk"><option${c.risk==="Low"?" selected":""}>Low</option><option${c.risk==="Medium"?" selected":""}>Medium</option><option${c.risk==="High"?" selected":""}>High</option></select></div>
+  </div>
+  <div class="field"><label>Email Address</label><input class="input" id="ecEmail" type="email" value="${esc(c.email||'')}"></div>
+  <div class="field"><label>Profile Photo URL</label><input class="input" id="ecPhoto" value="${esc(c.photo||'')}"></div>
+  <label class="check"><input id="ecFreeze" type="checkbox" ${c.freeze?"checked":""}> Stop / Freeze Interest</label>
+  <div class="field"><label style="color:var(--red)">Authorization PIN *</label><input class="input" id="ecPin" type="password" placeholder="Enter admin PIN"></div>
+ `,"Save Changes",()=>{
+  if(!pinOk(ecPin.value))return toast("Invalid authorization PIN");
+  if(!ecName.value.trim())return toast("Name is required");
+  c.name=ecName.value.trim().toUpperCase();c.address=ecAddress.value.trim();c.principal=Number(ecPrincipal.value||0);c.rate=Number(ecRate.value||0);
+  c.start=ecStart.value;c.dueDate=ecDue.value;c.mode=ecMode.value;c.itype=ecItype.value;c.phone=ecPhone.value.trim();c.risk=ecRisk.value;
+  c.email=ecEmail.value.trim();c.photo=ecPhoto.value.trim();
+  const wasFrozen=c.freeze;c.freeze=ecFreeze.checked;
+  if(c.freeze&&!wasFrozen)c.freezeDate=new Date().toISOString().slice(0,10);
+  if(!c.freeze)delete c.freezeDate;
+  save();closeModal();renderHome();toast("Customer profile updated")
+ })
+}
+function renderPaidList(){
+ const a=customers.filter(c=>!Number(c.principal));
+ const el=document.getElementById("paidList");
+ el.innerHTML=a.length?a.map(c=>`<div class="customer">${avatar(c)}<div class="cmain"><div class="cname">${esc(c.name)}</div><div class="active">✓ Loan Completed</div><div class="sub">${esc(c.phone||"N/A")}</div></div><button onclick="openCustomer(${c.id})" style="background:var(--soft);color:var(--primary);padding:9px 12px;border-radius:14px;font-weight:800;font-size:12px">View</button></div>`).join(""):`<div class="empty">No completed loans yet.</div>`
+}
+function paymentMethods(){modal("Payment Methods",`<div class="field"><label>Bank / QR URL</label><input class="input" placeholder="https://..."></div><div class="field"><label>Wallet QR URL</label><input class="input" placeholder="https://..."></div>`,"Save",()=>{closeModal();toast("Payment methods saved")})}
+function announcement(){modal("Push Announcement",`<textarea class="textarea" id="announce" placeholder="Write announcement..."></textarea>`,"Send",()=>{if(!announce.value.trim())return toast("Write a message first");closeModal();toast("Announcement prepared")})}
+function showDueReminders(){
+ const od=customers.filter(isOverdue);
+ const soon=customers.filter(c=>!isOverdue(c)&&c.dueDate&&Number(c.principal)>0&&(dueDateObj(c.dueDate)-new Date())/86400000<=settings.reminderDays);
+ const rows=(list,label)=>list.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)"><div><b>${esc(c.name)}</b><div style="font-size:11px;color:var(--muted)">${label} • Notify ${fmtDT(c.dueDate)}</div></div><button onclick="whatsapp(${c.id})" style="background:#21c86c;color:#fff;padding:8px 12px;border-radius:14px;font-weight:800">Remind</button></div>`).join("");
+ const html=(od.length?`<p style="color:var(--red);font-weight:800">Overdue (${od.length})</p>`+rows(od,"Overdue"):"")+(soon.length?`<p style="color:var(--orange);font-weight:800;margin-top:10px">Notification Soon (${soon.length})</p>`+rows(soon,"Notify soon"):"")||"<p>No upcoming or overdue notifications 🎉</p>";
+ modal("Notifications",html,"Close",closeModal)
+}
+function exportData(){let blob=new Blob([JSON.stringify({version:3,customers,payments,settings},null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="kiran-loan-manager-v3-backup.json";a.click();toast("Data exported")}
+async function exportExcel(){
+ if(typeof ExcelJS==="undefined")return toast("Excel library failed to load — check internet connection");
+ toast("Preparing Excel file…");
+ const wb=new ExcelJS.Workbook();
+ wb.creator="Kiran Loan Manager";
+ wb.created=new Date();
+
+ const HEADER_FILL={type:"pattern",pattern:"solid",fgColor:{argb:"FF00A878"}};
+ const HEADER_FONT={bold:true,color:{argb:"FFFFFFFF"},size:11};
+ const THIN={style:"thin",color:{argb:"FFD9E2E8"}};
+ const BORDER={top:THIN,left:THIN,bottom:THIN,right:THIN};
+ function styleHeader(row){row.eachCell(c=>{c.fill=HEADER_FILL;c.font=HEADER_FONT;c.border=BORDER;c.alignment={vertical:"middle",horizontal:"center"}});row.height=22}
+ function styleBody(ws){ws.eachRow((row,i)=>{if(i===1)return;row.eachCell(c=>{c.border=BORDER;c.alignment={vertical:"middle"}});row.height=19;if(i%2===0)row.eachCell(c=>{if(!c.fill)c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF5F8FA"}}})})}
+
+ // ---- Customers sheet ----
+ const wsC=wb.addWorksheet("Customers");
+ wsC.columns=[
+  {header:"Name",key:"name",width:24},
+  {header:"Address",key:"address",width:26},
+  {header:"Phone",key:"phone",width:15},
+  {header:"Email",key:"email",width:26},
+  {header:"Loan Principal",key:"principal",width:16,style:{numFmt:'"Rs."#,##0.00'}},
+  {header:"Interest %",key:"rate",width:12},
+  {header:"Interest Type",key:"itype",width:14},
+  {header:"Accrued Interest",key:"interest",width:16,style:{numFmt:'"Rs."#,##0.00'}},
+  {header:"Payment Mode",key:"mode",width:15},
+  {header:"Start Date",key:"start",width:13},
+  {header:"Due Date",key:"dueDate",width:13},
+  {header:"Status",key:"status",width:12},
+  {header:"Risk Level",key:"risk",width:12}
+ ];
+ customers.forEach(c=>wsC.addRow({name:c.name,address:c.address||"",phone:c.phone||"",email:c.email||"",principal:Number(c.principal||0),rate:Number(c.rate||0),itype:c.itype||"Simple",interest:interest(c),mode:c.mode||"",start:c.start||"",dueDate:(c.dueDate||"").slice(0,10),status:c.freeze?"Frozen":"Active",risk:c.risk||"Low"}));
+ styleHeader(wsC.getRow(1));styleBody(wsC);
+ wsC.autoFilter={from:"A1",to:"M1"};
+ wsC.views=[{state:"frozen",ySplit:1}];
+
+ // ---- Payments sheet ----
+ const wsP=wb.addWorksheet("Payments");
+ wsP.columns=[
+  {header:"Customer",key:"name",width:24},
+  {header:"Type",key:"type",width:12},
+  {header:"Amount",key:"amount",width:16,style:{numFmt:'"Rs."#,##0.00'}},
+  {header:"Date",key:"date",width:13},
+  {header:"Time",key:"time",width:12},
+  {header:"Status",key:"status",width:12}
+ ];
+ payments.forEach(p=>wsP.addRow({name:p.customerName,type:p.type,amount:Number(p.amount||0),date:p.date||"",time:p.time||"",status:p.status||"PENDING"}));
+ styleHeader(wsP.getRow(1));styleBody(wsP);
+ wsP.autoFilter={from:"A1",to:"F1"};
+ wsP.views=[{state:"frozen",ySplit:1}];
+
+ // ---- Summary sheet ----
+ const wsS=wb.addWorksheet("Summary");
+ wsS.columns=[{header:"Metric",key:"m",width:28},{header:"Value",key:"v",width:20}];
+ const tp=customers.reduce((a,c)=>a+Number(c.principal||0),0);
+ const ti=customers.reduce((a,c)=>a+interest(c),0);
+ const od=customers.filter(isOverdue).length;
+ [
+  ["Report Generated",new Date().toLocaleString()],
+  ["Total Customers",customers.length],
+  ["Total Outstanding Principal",tp],
+  ["Total Accrued Interest",ti],
+  ["Overdue Loans",od],
+  ["Total Payments Recorded",payments.length],
+  ["Verified Payments",payments.filter(p=>p.status==="VERIFIED").length],
+  ["Pending Payments",payments.filter(p=>p.status!=="VERIFIED").length]
+ ].forEach(r=>wsS.addRow({m:r[0],v:r[1]}));
+ styleHeader(wsS.getRow(1));styleBody(wsS);
+ wsS.getCell("B3").numFmt='"Rs."#,##0.00';wsS.getCell("B4").numFmt='"Rs."#,##0.00';
+
+ const buf=await wb.xlsx.writeBuffer();
+ const blob=new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download="kiran-loan-manager-"+new Date().toISOString().slice(0,10)+".xlsx";a.click();
+ toast("Excel file downloaded")
+}
+function importData(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(!Array.isArray(d.customers)||!Array.isArray(d.payments))throw 0;customers=d.customers;payments=d.payments;if(d.settings)settings=d.settings;save();saveSettings();renderHome();toast("Data imported")}catch{toast("Invalid backup file")}};r.readAsText(f);e.target.value=""}
+function deleteAll(){modal("Delete All Data",`<p>All customers and payments will be permanently removed from this browser.</p><input class="input" id="allpin" type="password" placeholder="Enter admin PIN">`,"Delete Everything",()=>{if(!pinOk(allpin.value))return toast("Invalid PIN");customers=[];payments=[];save();closeModal();renderHome();toast("All data deleted")},true)}
+function modal(title,content,button,action,danger=false){modalBox.innerHTML=`<div class="modal-head"><h3>${title}</h3><button class="modal-x" onclick="closeModal()">×</button></div><div class="modal-body">${content}</div><div class="modal-actions"><button class="cancel" onclick="closeModal()">Cancel</button><button id="modalConfirm" class="confirm ${danger?"danger":""}">${button}</button></div>`;document.getElementById("modalConfirm").onclick=action;modalBg.classList.add("show")}
+function closeModal(){modalBg.classList.remove("show")}
+modalBg.onclick=e=>{if(e.target===modalBg)closeModal()}
+let toastTimer;function toast(t){let x=document.getElementById("toast");x.textContent=t;x.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>x.classList.remove("show"),2200)}
+
+// ---- Loan Calculator ----
+function runCalc(){
+ const P=Number(calcP.value||0),r=Number(calcR.value||0)/100,d=Number(calcD.value||0),m=calcM.value;
+ let interestAmt;
+ if(m==="compound"){const months=d/30;interestAmt=P*(Math.pow(1+r/12,months)-1)}
+ else{interestAmt=P*r*d/365}
+ const out=document.getElementById("calcOut");out.classList.remove("hidden");
+ out.innerHTML=`<div class="label">Estimated Interest</div><div class="big">${money2(interestAmt)}</div><div class="label" style="margin-top:14px">Total Payable</div><div class="big" style="color:var(--ink)">${money2(P+interestAmt)}</div>`
+}
+
+// ---- Reports ----
+function renderReports(){
+ const now=new Date(),months=[];
+ for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({key:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"),label:d.toLocaleDateString("en-US",{month:"short"})})}
+ const totals=months.map(m=>payments.filter(p=>p.date.startsWith(m.key)).reduce((a,p)=>a+Number(p.amount),0));
+ const max=Math.max(...totals,1);
+ document.getElementById("chart").innerHTML=months.map((m,i)=>`<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%"><div class="bar" style="height:${Math.max(4,totals[i]/max*100)}%"><div class="barval">${totals[i]?Math.round(totals[i]/1000)+"k":""}</div></div><div class="barlabel">${m.label}</div></div>`).join("");
+ const thisMonthKey=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+ repMonth.textContent=money(payments.filter(p=>p.date.startsWith(thisMonthKey)).reduce((a,p)=>a+Number(p.amount),0));
+ repAll.textContent=money(payments.reduce((a,p)=>a+Number(p.amount),0));
+ const top=[...customers].filter(c=>c.principal>0).sort((a,b)=>b.principal-a.principal).slice(0,5);
+ topList.innerHTML=top.length?top.map(c=>`<div class="kycrow"><span>${esc(c.name)}</span><span>${money(c.principal)}</span></div>`).join(""):`<div class="empty">No outstanding loans.</div>`;
+ document.getElementById("repPending").textContent=payments.filter(p=>p.status!=="VERIFIED").length;
+ document.getElementById("repVerified").textContent=payments.filter(p=>p.status==="VERIFIED").length;
+ document.getElementById("completedCount").textContent=customers.filter(c=>!Number(c.principal)).length+" loan(s) fully paid off";
+}
+
+listenFirebase();
+function waitForFirstSync(timeoutMs){
+ return new Promise(res=>{
+  if(firstSyncDone)return res();
+  const t=setTimeout(res,timeoutMs);
+  const iv=setInterval(()=>{if(firstSyncDone){clearInterval(iv);clearTimeout(t);res()}},100)
+ })
+}
+waitForFirstSync(2000).then(()=>{
+ initLock();
+ applyTheme();
+ renderHome();
+ checkNotifications();
+ setInterval(()=>{
+  if(!document.getElementById("home").classList.contains("hidden"))renderHome();
+  else if(openCustomerId!==null&&!document.getElementById("detail").classList.contains("hidden"))openCustomer(openCustomerId);
+ },60000);
+});
+</script>
+</body>
+</html>
